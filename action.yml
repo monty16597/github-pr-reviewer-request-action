@@ -1,0 +1,18 @@
+name: 'PR reviewer request'
+description: 'Request reviewers for a PR and add comment on the PR'
+inputs:
+  repo_owner:
+    description: 'Name of the owner'
+    required: true
+  repo_name:
+    description: 'Name of the repo'
+    required: true
+  pr_number:
+    description: 'Number of the PR'
+    required: true
+  pr_reviewers:
+    description: 'List of reviewers (comma separated)'
+    required: true
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
