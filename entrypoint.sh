@@ -6,6 +6,7 @@ REPO=$INPUT_REPO_NAME
 PULL_NUMBER=$INPUT_PR_NUMBER
 ORG_MAINTAINER_USERNAMES=$INPUT_PR_REVIEWERS
 DO_COMMENT=$INPUT_DO_COMMENT
+CUSTOM_COMMENT=$INPUT_CUSTOM_COMMENT
 
 if [[ -z $TOKEN ]]; then
   echo "Error: Missing input 'github_token'"
@@ -63,11 +64,17 @@ do
 done
 MAINTAINER_USERNAMES=$(IFS=','; echo "${array[*]}")
 
+COMMENT="Review require ${MAINTAINER_USERNAMES}"
+
+if [ ! -z "$CUSTOM_COMMENT" ]; then
+  COMMENT=$CUSTOM_COMMENT
+fi
+
 _RESPONSE=`curl --silent -X POST \
   -H "Accept: application/vnd.github+json" \
   -H "Authorization: Bearer ${TOKEN}" \
   -H "X-GitHub-Api-Version: 2022-11-28" \
-  -d "{\"body\": \"Review require ${MAINTAINER_USERNAMES}\"}" \
+  -d "{\"body\": \"${COMMENT}\"}" \
   "https://api.github.com/repos/${REPO}/issues/${PULL_NUMBER}/comments"`
 id=$(echo "${_RESPONSE}" | jq -r '.id')
 

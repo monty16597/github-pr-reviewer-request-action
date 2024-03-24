@@ -16,6 +16,9 @@ inputs:
   github_token:
     description: 'Github token'
     required: true
+  custom_message:
+    description: 'Custom message to be added in the comment'
+    required: false
 runs:
   using: 'docker'
   image: 'Dockerfile'
