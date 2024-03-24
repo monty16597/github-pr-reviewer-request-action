@@ -1,11 +1,8 @@
 name: 'PR reviewer request'
 description: 'Request reviewers for a PR and add comment on the PR'
 inputs:
-  repo_owner:
-    description: 'Name of the owner'
-    required: true
   repo_name:
-    description: 'Name of the repo'
+    description: 'Name of the repo(owner/repo_name combination)'
     required: true
   pr_number:
     description: 'Number of the PR'

@@ -2,16 +2,12 @@
 set -e
 
 TOKEN=$INPUT_GITHUB_TOKEN
-OWNER=$INPUT_REPO_OWNER
 REPO=$INPUT_REPO_NAME
 PULL_NUMBER=$INPUT_PR_NUMBER
 ORG_MAINTAINER_USERNAMES=$INPUT_PR_REVIEWERS
 
 if [[ -z $TOKEN ]]; then
   echo "Error: Missing input 'github_token'"
-  exit 1
-elif [[ -z $OWNER ]]; then
-  echo "Error: Missing input 'repo_owner'"
   exit 1
 elif [[ -z $REPO ]]; then
   echo "Error: Missing input 'repo_name'"
@@ -38,7 +34,7 @@ _RESPONSE=$(curl --silent -X POST \
   -H "Authorization: Bearer ${TOKEN}" \
   -H "X-GitHub-Api-Version: 2022-11-28" \
   -d "{\"reviewers\": [${MAINTAINER_USERNAMES}]}" \
-  "https://api.github.com/repos/${OWNER}/${REPO}/pulls/${PULL_NUMBER}/requested_reviewers")
+  "https://api.github.com/repos/${REPO}/pulls/${PULL_NUMBER}/requested_reviewers")
 
 reviewers=$(echo "${_RESPONSE}" | jq -r '.requested_reviewers')
 
@@ -64,7 +60,7 @@ _RESPONSE=`curl --silent -X POST \
   -H "Authorization: Bearer ${TOKEN}" \
   -H "X-GitHub-Api-Version: 2022-11-28" \
   -d "{\"body\": \"Review require ${MAINTAINER_USERNAMES}\"}" \
-  "https://api.github.com/repos/${OWNER}/${REPO}/issues/${PULL_NUMBER}/comments"`
+  "https://api.github.com/repos/${REPO}/issues/${PULL_NUMBER}/comments"`
 id=$(echo "${_RESPONSE}" | jq -r '.id')
 
 if [ "${id}" != "null" ]; then
