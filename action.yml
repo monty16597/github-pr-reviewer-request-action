@@ -10,6 +10,9 @@ inputs:
   pr_reviewers:
     description: 'List of reviewers (comma separated)'
     required: true
+  DO_COMMENT:
+    description: 'Add comment on the PR, true/false'
+    required: true
 runs:
   using: 'docker'
   image: 'Dockerfile'

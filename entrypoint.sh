@@ -5,6 +5,7 @@ TOKEN=$INPUT_GITHUB_TOKEN
 REPO=$INPUT_REPO_NAME
 PULL_NUMBER=$INPUT_PR_NUMBER
 ORG_MAINTAINER_USERNAMES=$INPUT_PR_REVIEWERS
+DO_COMMENT=$INPUT_DO_COMMENT
 
 if [[ -z $TOKEN ]]; then
   echo "Error: Missing input 'github_token'"
@@ -17,6 +18,9 @@ elif [[ -z $PULL_NUMBER ]]; then
   exit 1
 elif [[ -z $ORG_MAINTAINER_USERNAMES ]]; then
   echo "Error: Missing input 'pr_reviewers'"
+  exit 1
+elif [[ -z $DO_COMMENT ]]; then
+  echo "Error: Missing input 'do_comment'"
   exit 1
 fi
 
@@ -46,6 +50,10 @@ else
   exit 1
 fi
 
+if [ "$DO_COMMENT" != "true" ]; then
+  echo "Comment is disabled"
+  exit 0
+fi
 
 # Add comment to the PR to notify the reviewers
 IFS=',' read -r -a array <<< $ORG_MAINTAINER_USERNAMES
