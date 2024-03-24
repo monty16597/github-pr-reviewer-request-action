@@ -17,7 +17,7 @@ inputs:
     description: 'Github token'
     required: true
   custom_message:
-    description: 'Custom message to be added in the comment'
+    description: 'Custom message to be added in the comment, if do_comment is true and add reviewers with @ in the message as well. Ex: @reviewer1, @reviewer2 or use ${MAINTAINER_USERNAMES} to add all the mentioned reviewers in the pr_reviewers input'
     required: false
 runs:
   using: 'docker'
