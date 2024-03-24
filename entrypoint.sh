@@ -4,7 +4,7 @@ set -e
 TOKEN=$INPUT_GITHUB_TOKEN
 REPO=$INPUT_REPO_NAME
 PULL_NUMBER=$INPUT_PR_NUMBER
-ORG_MAINTAINER_USERNAMES=$INPUT_PR_REVIEWERS
+ORG_PR_REVIEWERS=$INPUT_PR_REVIEWERS
 DO_COMMENT=$INPUT_DO_COMMENT
 CUSTOM_COMMENT=$INPUT_CUSTOM_COMMENT
 
@@ -17,7 +17,7 @@ elif [[ -z $REPO ]]; then
 elif [[ -z $PULL_NUMBER ]]; then
   echo "Error: Missing input 'pr_number'"
   exit 1
-elif [[ -z $ORG_MAINTAINER_USERNAMES ]]; then
+elif [[ -z $ORG_PR_REVIEWERS ]]; then
   echo "Error: Missing input 'pr_reviewers'"
   exit 1
 elif [[ -z $DO_COMMENT ]]; then
@@ -25,20 +25,20 @@ elif [[ -z $DO_COMMENT ]]; then
   exit 1
 fi
 
-IFS=',' read -r -a array <<< $ORG_MAINTAINER_USERNAMES
+IFS=',' read -r -a array <<< $ORG_PR_REVIEWERS
 for index in "${!array[@]}"
 do
   array[index]=`echo ${array[index]} | xargs`
   array[index]="\"${array[index]}\""
 done
-MAINTAINER_USERNAMES=$(IFS=','; echo "${array[*]}")
+PR_REVIEWERS=$(IFS=','; echo "${array[*]}")
 
-# CURL to add reviewers using MAINTAINER_USERNAMES
+# CURL to add reviewers using PR_REVIEWERS
 _RESPONSE=$(curl --silent -X POST \
   -H "Accept: application/vnd.github+json" \
   -H "Authorization: Bearer ${TOKEN}" \
   -H "X-GitHub-Api-Version: 2022-11-28" \
-  -d "{\"reviewers\": [${MAINTAINER_USERNAMES}]}" \
+  -d "{\"reviewers\": [${PR_REVIEWERS}]}" \
   "https://api.github.com/repos/${REPO}/pulls/${PULL_NUMBER}/requested_reviewers")
 
 reviewers=$(echo "${_RESPONSE}" | jq -r '.requested_reviewers')
@@ -57,14 +57,14 @@ if [ "$DO_COMMENT" != "true" ]; then
 fi
 
 # Add comment to the PR to notify the reviewers
-IFS=',' read -r -a array <<< $ORG_MAINTAINER_USERNAMES
+IFS=',' read -r -a array <<< $ORG_PR_REVIEWERS
 for index in "${!array[@]}"
 do
   array[index]="@${array[index]}"
 done
-MAINTAINER_USERNAMES=$(IFS=','; echo "${array[*]}")
+PR_REVIEWERS=$(IFS=','; echo "${array[*]}")
 
-COMMENT="Review require ${MAINTAINER_USERNAMES}"
+COMMENT="Review require ${PR_REVIEWERS}"
 
 if [ ! -z "$CUSTOM_COMMENT" ]; then
   COMMENT=$CUSTOM_COMMENT
