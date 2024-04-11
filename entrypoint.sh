@@ -47,8 +47,12 @@ if [ "${reviewers}" != "null" ]; then
   reviewers=$(echo "${_RESPONSE}" | jq -r '.requested_reviewers | .[] | .login')
   echo "Reviewers have been added successfully"
 else
-  echo "Failed to add reviewers. Error: $(echo ${_RESPONSE} | jq  -r '.message')"
-  exit 1
+  if $(echo ${_RESPONSE} | jq  -r '.message' | grep -q "Review cannot be requested from pull request author"); then
+    echo "Review cannot be requested from pull request author"
+  else
+    echo "Failed to add reviewers. Error: $(echo ${_RESPONSE} | jq  -r '.message')"
+    exit 1
+  fi
 fi
 
 if [ "$DO_COMMENT" != "true" ]; then
