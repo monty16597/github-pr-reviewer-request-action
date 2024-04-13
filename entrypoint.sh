@@ -33,27 +33,31 @@ do
 done
 PR_REVIEWERS=$(IFS=','; echo "${array[*]}")
 
-# CURL to add reviewers using PR_REVIEWERS
-_RESPONSE=$(curl --silent -X POST \
-  -H "Accept: application/vnd.github+json" \
-  -H "Authorization: Bearer ${TOKEN}" \
-  -H "X-GitHub-Api-Version: 2022-11-28" \
-  -d "{\"reviewers\": [${PR_REVIEWERS}]}" \
-  "https://api.github.com/repos/${REPO}/pulls/${PULL_NUMBER}/requested_reviewers")
+for i in ${PR_REVIEWERS//,/ }
+do
+    
+  # CURL to add reviewers using PR_REVIEWERS
+  _RESPONSE=$(curl --silent -X POST \
+    -H "Accept: application/vnd.github+json" \
+    -H "Authorization: Bearer ${TOKEN}" \
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+    -d "{\"reviewers\": [${i}]}" \
+    "https://api.github.com/repos/${REPO}/pulls/${PULL_NUMBER}/requested_reviewers")
 
-reviewers=$(echo "${_RESPONSE}" | jq -r '.requested_reviewers')
+  reviewers=$(echo "${_RESPONSE}" | jq -r '.requested_reviewers')
 
-if [ "${reviewers}" != "null" ]; then
-  reviewers=$(echo "${_RESPONSE}" | jq -r '.requested_reviewers | .[] | .login')
-  echo "Reviewers have been added successfully"
-else
-  if $(echo ${_RESPONSE} | jq  -r '.message' | grep -q "Review cannot be requested from pull request author"); then
-    echo "Review cannot be requested from pull request author"
+  if [ "${reviewers}" != "null" ]; then
+    reviewers=$(echo "${_RESPONSE}" | jq -r '.requested_reviewers | .[] | .login')
+    echo "Reviewers have been added successfully"
   else
-    echo "Failed to add reviewers. Error: $(echo ${_RESPONSE} | jq  -r '.message')"
-    exit 1
+    if $(echo ${_RESPONSE} | jq  -r '.message' | grep -q "Review cannot be requested from pull request author"); then
+      echo "Review cannot be requested from pull request author"
+    else
+      echo "Failed to add reviewers. Error: $(echo ${_RESPONSE} | jq  -r '.message')"
+      exit 1
+    fi
   fi
-fi
+done
 
 if [ "$DO_COMMENT" != "true" ]; then
   echo "Comment is disabled"
